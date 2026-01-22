@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: db-secrets   # Option 2: secrets are injected
+
+stages:
+
+  # ------------------- Build Stage -------------------
+  - stage: Build
+    displayName: Build & Test
+    jobs:
+      - job: BuildJob
+        displayName: Maven Build
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: JavaToolInstaller@0
+            inputs:
+              versionSpec: '17'
+              jdkArchitectureOption: 'x64'
+              jdkSourceOption: 'PreInstalled'
+
+          - script: mvn clean test
+            displayName: Run tests
+
+          - script: mvn clean package -DskipTests
+            displayName: Build jar
+
+          - publish: target/*.jar
+            artifact: app
+
+  # ------------------- Docker Stage -------------------
+  - stage: Docker
+    displayName: Build Docker Image
+    dependsOn: Build
+    jobs:
+      - job: DockerJob
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - download: current
+            artifact: app
+
+          - script: |
+              # $(Build.BuildId) is Azure DevOps magic, auto-generated per pipeline run.
+              docker build -t springboot-postgres-app:$(Build.BuildId) .
+            displayName: Build Docker image

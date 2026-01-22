@@ -8,6 +8,8 @@
     .idea/jarRepositories.xml
     .idea/compiler.xml
     .idea/libraries/
+    .idea/compiler.xml
+    .idea/vcs.xml
     *.iws
     *.iml
     *.ipr

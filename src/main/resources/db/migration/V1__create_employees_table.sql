@@ -1,0 +1,6 @@
+CREATE TABLE employees (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(100),
+  salary DOUBLE PRECISION
+);
